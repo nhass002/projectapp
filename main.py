@@ -18,7 +18,8 @@ while True:
     dscascades = three_ds_cascade.detectMultiScale(gray,1.01, 7)
     """
 
-    dscascades = three_ds_cascade.detectMultiScale(frame, 1.01, 7) #holds the classifier mutl
+    dscascades = three_ds_cascade.detectMultiScale(frame, 1.01, 7) #holds the classifier multiscale which does the detecting
+    # and returns the boundaries for the rectangle
 
     for(x,y,w,h) in dscascades:
         #gray = cv.cv2.rectangle(gray,(x,y),(x+w,y+h),(255,0,0),2)
