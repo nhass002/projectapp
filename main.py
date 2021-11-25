@@ -1,9 +1,9 @@
-import cv2 as cv
+import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
 
-capture = cv.VideoCapture(0)
+capture = cv.VideoCapture(0) #video capturing saved into a variable
 
-three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml')
+three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml') #finds the classifier in the path
 
 print("click w to close the capture")
 while True:
@@ -13,29 +13,27 @@ while True:
     #print(check)
     #print(frame)
     """
-    Camera but grayscaled
+    Camera but grayscaled, decided not to use this
     gray = cv.cv2.cvtColor(frame,cv.cv2.COLOR_BGR2GRAY)
     dscascades = three_ds_cascade.detectMultiScale(gray,1.01, 7)
     """
 
-    dscascades = three_ds_cascade.detectMultiScale(frame, 1.01, 7)
+    dscascades = three_ds_cascade.detectMultiScale(frame, 1.01, 7) #holds the classifier mutl
 
     for(x,y,w,h) in dscascades:
         #gray = cv.cv2.rectangle(gray,(x,y),(x+w,y+h),(255,0,0),2)
         frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         #frame as video, x and y for the top left corner, x+w and y+h will get the bottom corner, colour blue and the line thickness
         cv.cv2.putText(frame, '3DS', (x, y-2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        #takes in the frame image as parameter, lavels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
 
     #cv.imshow("Capture", gray)
-    cv.imshow("Capture",frame)
+    cv.imshow("Capture",frame) #displays the frame on screen
 
-    #haar_images/classifier/cascade.xml
+    key=cv.waitKey(1) #collects key clicks from the keyboard
 
-    #cv.waitKey(0)
-    key=cv.waitKey(1)
-
-    if key==ord('w'):
-        break
+    if key==ord('w'): #if it is key w then the camera window will close and the program ends
+        break #breaks out of loop if condition is met
 
 cv.destroyAllWindows()
 
@@ -48,14 +46,7 @@ capture.release()
 #https://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#videocapture-set
 
 """
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+extra info below
 """
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 # https://www.e-consystems.com/blog/camera/how-to-access-cameras-using-opencv-with-python/
