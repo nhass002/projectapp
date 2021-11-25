@@ -25,7 +25,7 @@ while True:
         frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         #frame as video, x and y for the top left corner, x+w and y+h will get the bottom corner, colour blue and the line thickness
         cv.cv2.putText(frame, '3DS', (x, y-2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-        #takes in the frame image as parameter, lavels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
+        #takes in the frame image as parameter, labels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
 
     #cv.imshow("Capture", gray)
     cv.imshow("Capture",frame) #displays the frame on screen
