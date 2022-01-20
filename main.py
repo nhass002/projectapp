@@ -1,6 +1,6 @@
 import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
-from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5 import QtCore, QtGui, QtWidgets
 
 capture = cv.VideoCapture(0) #video capturing saved into a variable
 
