@@ -1,5 +1,6 @@
 import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 capture = cv.VideoCapture(0) #video capturing saved into a variable
 
@@ -80,7 +81,70 @@ cv.destroyAllWindows()
 
 #end camera
 capture.release()
+#GUI CLASS BELOW
 """
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(644, 381)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.cameraframe = QtWidgets.QFrame(self.centralwidget)
+        self.cameraframe.setGeometry(QtCore.QRect(10, 10, 611, 241))
+        self.cameraframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.cameraframe.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.cameraframe.setObjectName("cameraframe")
+        self.buttonframe = QtWidgets.QFrame(self.centralwidget)
+        self.buttonframe.setGeometry(QtCore.QRect(10, 260, 291, 71))
+        self.buttonframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.buttonframe.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.buttonframe.setObjectName("buttonframe")
+        self.comboBox = QtWidgets.QComboBox(self.buttonframe)
+        self.comboBox.setGeometry(QtCore.QRect(10, 40, 171, 22))
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.pushButton_3 = QtWidgets.QPushButton(self.buttonframe)
+        self.pushButton_3.setGeometry(QtCore.QRect(200, 10, 75, 23))
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.pushButton = QtWidgets.QPushButton(self.buttonframe)
+        self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton_4 = QtWidgets.QPushButton(self.buttonframe)
+        self.pushButton_4.setGeometry(QtCore.QRect(200, 40, 75, 23))
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_2 = QtWidgets.QPushButton(self.buttonframe)
+        self.pushButton_2.setGeometry(QtCore.QRect(100, 10, 81, 23))
+        self.pushButton_2.setObjectName("pushButton_2")
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 644, 22))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.comboBox.setItemText(0, _translate("MainWindow", "Default Input"))
+        self.pushButton_3.setText(_translate("MainWindow", "Screenshot"))
+        self.pushButton.setText(_translate("MainWindow", "Switch Mode"))
+        self.pushButton_4.setText(_translate("MainWindow", "PushButton"))
+        self.pushButton_2.setText(_translate("MainWindow", "Upload Image"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
 """
 
 #capture.set(cv.cv.CV_CAP_PROP_FRAME_WIDTH,800)
