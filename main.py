@@ -1,6 +1,6 @@
 import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
-#from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 capture = cv.VideoCapture(0) #video capturing saved into a variable
 
@@ -12,7 +12,35 @@ bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xm
 
 mode = 1;
 
+def detect(frame):
+    dscascades = three_ds_cascade.detectMultiScale(frame, 1.01,
+                                                   7)  # holds the classifier multiscale which does the detecting
+    # and returns the boundaries for the rectangle
+    fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
+    fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
+    applecascades = apples_cascade.detectMultiScale(frame, 1.01, 7)
+    bananacascades = bananas_cascade.detectMultiScale(frame, 1.01, 7)
+    """
+    for (x, y, w, h) in dscascades:
+        # gray = cv.cv2.rectangle(gray,(x,y),(x+w,y+h),(255,0,0),2)
+        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        # frame as video, x and y for the top left corner, x+w and y+h will get the bottom corner, colour blue and the line thickness
+        cv.cv2.putText(frame, '3DS', (x, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        # takes in the frame image as parameter, labels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
+    """
+    for (x, y, w, h) in fruitcascades:
+        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv.cv2.putText(frame, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+    for (x, y, w, h) in applecascades:
+        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+    for (x, y, w, h) in bananacascades:
+        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
 print("click w to close the capture")
+print("click s to switch to load image")
+print("click c to switch back to camera")
 while True:
 
     if mode == 0:
@@ -20,26 +48,14 @@ while True:
         #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
         gray = cv.cv2.cvtColor(img, cv.cv2.COLOR_BGR2GRAY)
         windowname = "Image Display"
-        fruitcascades = fruits_cascade.detectMultiScale(img, 1.01, 7)
-        applecascades = apples_cascade.detectMultiScale(img, 1.01, 7)
-        bananacascades = bananas_cascade.detectMultiScale(img, 1.01, 7)
-        #detect()
-        for (x,y,w,h) in fruitcascades:
-            img = cv.cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv.cv2.putText(img, 'fruits', ((x + w)-30, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-        for (x,y,w,h) in applecascades:
-            img = cv.cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv.cv2.putText(img, 'apple', ((x + w)-30, (y+h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-        for (x,y,w,h) in bananacascades:
-            img = cv.cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv.cv2.putText(img, 'banana', (x, (y+h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        detect(img)
         cv.imshow(windowname, img)  # "Display window"
 
     if mode == 1:
         check, frame = capture.read() #update frames
         frame = cv.flip(frame, 1) #flips the camera so that it acts like a mirror
         windowcapture = "Capture"
-        #detect()
+        detect(frame)
 
         #print(check)
         #print(frame)
@@ -49,20 +65,6 @@ while True:
             gray = cv.cv2.cvtColor(frame, cv.cv2.COLOR_BGR2GRAY)
             dscascades = three_ds_cascade.detectMultiScale(gray, 1.01, 7)
 
-        dscascades = three_ds_cascade.detectMultiScale(frame, 1.01, 7) #holds the classifier multiscale which does the detecting
-        # and returns the boundaries for the rectangle
-        fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
-
-        for(x,y,w,h) in dscascades:
-            #gray = cv.cv2.rectangle(gray,(x,y),(x+w,y+h),(255,0,0),2)
-            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            #frame as video, x and y for the top left corner, x+w and y+h will get the bottom corner, colour blue and the line thickness
-            cv.cv2.putText(frame, '3DS', (x, y-2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-            #takes in the frame image as parameter, labels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
-
-        for (x,y,w,h) in fruitcascades:
-            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv.cv2.putText(frame, 'fruits', ((x + w)-10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
         #cv.imshow("Capture", gray)
         cv.imshow(windowcapture,frame) #displays the frame on screen
 
