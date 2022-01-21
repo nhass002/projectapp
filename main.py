@@ -1,5 +1,6 @@
 import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
+import argparse
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 capture = cv.VideoCapture(0) #video capturing saved into a variable
@@ -37,6 +38,16 @@ def detect(frame):
     for (x, y, w, h) in bananacascades:
         frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+    #-- Detect faces
+    face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Detect faces
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    # Draw rectangle around the faces
+    for (x, y, w, h) in faces:
+        frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
 
 print("click w to close the capture")
 print("click s to switch to load image")
