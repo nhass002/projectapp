@@ -1,6 +1,6 @@
 import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
-import argparse
+#import argparse
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 capture = cv.VideoCapture(0) #video capturing saved into a variable
@@ -17,7 +17,7 @@ def detect(frame):
     dscascades = three_ds_cascade.detectMultiScale(frame, 1.01,
                                                    7)  # holds the classifier multiscale which does the detecting
     # and returns the boundaries for the rectangle
-    fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
+    #fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
     fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
     applecascades = apples_cascade.detectMultiScale(frame, 1.01, 7)
     bananacascades = bananas_cascade.detectMultiScale(frame, 1.01, 7)
@@ -55,12 +55,13 @@ print("click c to switch back to camera")
 while True:
 
     if mode == 0:
-        img = cv.imread("updated_haar_images/test/apple_78.jpg") #apple_79 #mixed_6
-        #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
+        img = cv.imread("updated_haar_images/test_files_grayscale/apple_78.jpg") #apple_79
         gray = cv.cv2.cvtColor(img, cv.cv2.COLOR_BGR2GRAY)
         windowname = "Image Display"
         detect(img)
         cv.imshow(windowname, img)  # "Display window"
+
+        #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
 
     if mode == 1:
         check, frame = capture.read() #update frames
