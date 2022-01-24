@@ -32,12 +32,12 @@ def detect(frame):
     for (x, y, w, h) in fruitcascades:
         frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         cv.cv2.putText(frame, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-    for (x, y, w, h) in applecascades:
-        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-    for (x, y, w, h) in bananacascades:
-        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        for (x, y, w, h) in applecascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        for (x, y, w, h) in bananacascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
 
     #-- Detect faces
     face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
@@ -55,13 +55,14 @@ print("click c to switch back to camera")
 while True:
 
     if mode == 0:
-        img = cv.imread("updated_haar_images/test_files_grayscale/apple_78.jpg") #apple_79
+        img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg") #apple_78
+        #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
         gray = cv.cv2.cvtColor(img, cv.cv2.COLOR_BGR2GRAY)
         windowname = "Image Display"
         detect(img)
         cv.imshow(windowname, img)  # "Display window"
 
-        #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
+
 
     if mode == 1:
         check, frame = capture.read() #update frames
