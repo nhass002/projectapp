@@ -4,9 +4,12 @@ import cv2.cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 #GUI CLASS BELOW
+from PyQt5.QtWidgets import QVBoxLayout, QLabel
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        #super(QtGui.QWidget).__init__()
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(644, 381)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -50,8 +53,22 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         #possibly wrap opencv window here https://stackoverflow.com/questions/32226074/display-opencv-window-on-top-of-pyqts-main-window/32270308
-        #type here
+        #this may help too as reference https://gist.github.com/docPhil99/ca4da12c9d6f29b9cea137b617c7b8b1
         self.capture = cv2.VideoCapture(0)
+        self.image_label = QLabel(self)
+        # create a text label
+        self.textLabel = QLabel('Demo')
+        # create a vertical box layout and add the two labels
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.image_label)
+        vbox.addWidget(self.textLabel)
+        # set the vbox layout as the widgets layout
+        self.setLayout(vbox)
+
+        #lay = QtGui.QVBoxLayout()
+        #lay.setMargin(0)
+        #lay.addWidget(self.video_frame)
+        #self.setLayout(lay)
         #need to add the video capture to this GUI here see link above for help
         #self.cameraframe.addWidget(self.video_frame)
 
