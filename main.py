@@ -52,7 +52,7 @@ class Ui_MainWindow(object):
         #possibly wrap opencv window here https://stackoverflow.com/questions/32226074/display-opencv-window-on-top-of-pyqts-main-window/32270308
         #type here
         self.capture = cv2.VideoCapture(0)
-        #need to add the video capture to this GUI here
+        #need to add the video capture to this GUI here see link above for help
         #self.cameraframe.addWidget(self.video_frame)
 
     def display(self,mode):
