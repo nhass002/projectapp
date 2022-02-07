@@ -3,101 +3,8 @@ import cv2.cv2
 #import argparse
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-capture = cv.VideoCapture(0) #video capturing saved into a variable
-
-three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml') #finds the classifier in the path
-
-fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
-apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
-bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
-
-mode = 1;
-
-def detect(frame):
-    dscascades = three_ds_cascade.detectMultiScale(frame, 1.01,
-                                                   7)  # holds the classifier multiscale which does the detecting
-    # and returns the boundaries for the rectangle
-    #fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
-    fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
-    applecascades = apples_cascade.detectMultiScale(frame, 1.01, 7)
-    bananacascades = bananas_cascade.detectMultiScale(frame, 1.01, 7)
-    """
-    for (x, y, w, h) in dscascades:
-        # gray = cv.cv2.rectangle(gray,(x,y),(x+w,y+h),(255,0,0),2)
-        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        # frame as video, x and y for the top left corner, x+w and y+h will get the bottom corner, colour blue and the line thickness
-        cv.cv2.putText(frame, '3DS', (x, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-        # takes in the frame image as parameter, labels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
-    """
-    for (x, y, w, h) in fruitcascades:
-        frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv.cv2.putText(frame, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-        for (x, y, w, h) in applecascades:
-            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-        for (x, y, w, h) in bananacascades:
-            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-
-    #-- Detect faces
-    face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    # Detect faces
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-    # Draw rectangle around the faces
-    for (x, y, w, h) in faces:
-        frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
-
-print("click w to close the capture")
-print("click s to switch to load image")
-print("click c to switch back to camera")
-while True:
-
-    if mode == 0:
-        img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg") #apple_78
-        #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
-        gray = cv.cv2.cvtColor(img, cv.cv2.COLOR_BGR2GRAY)
-        windowname = "Image Display"
-        detect(img)
-        cv.imshow(windowname, img)  # "Display window"
-
-
-
-    if mode == 1:
-        check, frame = capture.read() #update frames
-        frame = cv.flip(frame, 1) #flips the camera so that it acts like a mirror
-        windowcapture = "Capture"
-        detect(frame)
-
-        #print(check)
-        #print(frame)
-    #def detect():
-        def greyscale():
-            #Camera but grayscaled, decided not to use this yet
-            gray = cv.cv2.cvtColor(frame, cv.cv2.COLOR_BGR2GRAY)
-            dscascades = three_ds_cascade.detectMultiScale(gray, 1.01, 7)
-
-        #cv.imshow("Capture", gray)
-        cv.imshow(windowcapture,frame) #displays the frame on screen
-
-    key=cv.waitKey(1) #collects key clicks from the keyboard
-
-    if key==ord('w'): #if it is key w then the camera window will close and the program ends
-        break #breaks out of loop if condition is met
-    if key==ord('s'):
-        cv.destroyWindow(windowcapture)
-        mode = 0
-    if key==ord('c'):
-        cv.destroyWindow(windowname)
-        mode = 1
-
-cv.destroyAllWindows()
-
-#end camera
-capture.release()
 #GUI CLASS BELOW
-"""
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -139,8 +46,26 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
+        self.retranslateUi(MainWindow) #calls below function to add text
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        #possibly wrap opencv window here https://stackoverflow.com/questions/32226074/display-opencv-window-on-top-of-pyqts-main-window/32270308
+        #type here
+        self.capture = cv2.VideoCapture(0)
+        #self.cameraframe.addWidget(self.video_frame)
+
+    def display(self,mode):
+        if mode == 0:
+            img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")  # apple_78
+            # img = cv.imread("updated_haar_images/test/mixed_6.jpg")
+            gray = cv.cv2.cvtColor(img, cv.cv2.COLOR_BGR2GRAY)
+            windowname = "Image Display"
+            self.detect(img)
+        if mode == 1:
+            check, frame = self.capture.read() #update frames
+            frame = cv.flip(frame, 1) #flips the camera so that it acts like a mirror
+            #windowcapture = "Capture"
+            self.detect(frame)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -151,7 +76,152 @@ class Ui_MainWindow(object):
         self.pushButton_4.setText(_translate("MainWindow", "PushButton"))
         self.pushButton_2.setText(_translate("MainWindow", "Upload Image"))
 
+    def buttonCheck(self,mode):
+        self.pushButton.setCheckable(True)
+        self.pushButton.toggle()
+        #self.pushButton.clicked.connect()
+        if self.pushButton.isChecked():
+            #print("1")
+        #else:
+            if mode == 1:
+                #cv.destroyWindow(windowcapture)
+                mode = 0
+                #print(mode)
+            #if mode == 1:
+                #mode = 0
+                #print(mode)
 
+        if self.pushButton_2.isChecked():
+            print("2")
+        if self.pushButton_3.isChecked():
+            print("3")
+        if self.pushButton_4.isChecked():
+            print("4")
+
+    def detect(frame):
+        dscascades = three_ds_cascade.detectMultiScale(frame, 1.01,
+                                                       7)  # holds the classifier multiscale which does the detecting
+        # and returns the boundaries for the rectangle
+        # fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
+        fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
+        applecascades = apples_cascade.detectMultiScale(frame, 1.01, 7)
+        bananacascades = bananas_cascade.detectMultiScale(frame, 1.01, 7)
+        """
+        for (x, y, w, h) in dscascades:
+            # gray = cv.cv2.rectangle(gray,(x,y),(x+w,y+h),(255,0,0),2)
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            # frame as video, x and y for the top left corner, x+w and y+h will get the bottom corner, colour blue and the line thickness
+            cv.cv2.putText(frame, '3DS', (x, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+            # takes in the frame image as parameter, labels 3ds above the rectangle, y-2 would let it sit on the rectangle, font, font scaling, font colour and font thickness
+        """
+        for (x, y, w, h) in fruitcascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        for (x, y, w, h) in applecascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        for (x, y, w, h) in bananacascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+            # for (x, y, w, h) in fruitcascades:
+            # frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            # cv.cv2.putText(frame, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+            # for (x, y, w, h) in applecascades:
+            # frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            # cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+            # for (x, y, w, h) in bananacascades:
+            # frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            # cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+        # -- Detect faces
+        face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Detect faces
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        # Draw rectangle around the faces
+        for (x, y, w, h) in faces:
+            frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+    #FOR COMBOBOX Which is the drop down box of items, create an if statement that uses cv.videocapture(0) and inside the parameters
+    #0 is the default, replace 0 to look for other devices possibly? detect and the adds to the default input list when running the code
+
+capture = cv.VideoCapture(0) #video capturing saved into a variable
+
+three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml') #finds the classifier in the path
+
+fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
+apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
+bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
+
+mode = 1;
+
+if __name__ == "__main__":
+    import sys
+
+    mode = 0
+
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+
+print("click w to close the capture")
+print("click s to switch to load image")
+print("click c to switch back to camera")
+while True:
+
+    ui.setupUi(MainWindow)
+    ui.buttonCheck(mode)  # recently added
+    ui.display(mode)
+    MainWindow.show()
+    """
+    if mode == 0:
+        img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg") #apple_78
+        #img = cv.imread("updated_haar_images/test/mixed_6.jpg")
+        gray = cv.cv2.cvtColor(img, cv.cv2.COLOR_BGR2GRAY)
+        windowname = "Image Display"
+        ui.detect(img)
+        cv.imshow(windowname, img)  # "Display window"
+
+
+    if mode == 1:
+        ui.display()
+        check, frame = capture.read() #update frames
+        frame = cv.flip(frame, 1) #flips the camera so that it acts like a mirror
+        windowcapture = "Capture"
+        ui.detect(frame)
+    """
+
+        #print(check)
+        #print(frame)
+        #def detect():
+    def greyscale(frame):
+            #Camera but grayscaled, decided not to use this yet
+        gray = cv.cv2.cvtColor(frame, cv.cv2.COLOR_BGR2GRAY)
+        dscascades = three_ds_cascade.detectMultiScale(gray, 1.01, 7)
+
+        #cv.imshow("Capture", gray)
+        #cv.imshow(windowcapture,frame) #displays the frame on screen
+
+    key=cv.waitKey(1) #collects key clicks from the keyboard
+
+    if key==ord('w'): #if it is key w then the camera window will close and the program ends
+        break #breaks out of loop if condition is met
+    if key==ord('s'):
+        cv.destroyWindow() #windowcapture
+        mode = 0
+    if key==ord('c'):
+        cv.destroyWindow() #windowname
+        mode = 1
+
+cv.destroyAllWindows()
+
+#end camera
+capture.release()
+sys.exit(app.exec_())
+
+"""
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -161,6 +231,7 @@ if __name__ == "__main__":
     MainWindow.show()
     sys.exit(app.exec_())
 """
+
 
 #capture.set(cv.cv.CV_CAP_PROP_FRAME_WIDTH,800)
 #capture.set(cv.cv.CV_CAP_PROP_FRAME_HEIGHT,450)
