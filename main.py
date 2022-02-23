@@ -28,7 +28,7 @@ class VideoThread(QThread):
             cv_img = cv.flip(cv_img, 1)
             if check:
                 self.change_pixmap_signal.emit(cv_img)
-                #self.detect(cv_img)
+                #self.detect(cv_img) #this breaks the camera when running
 
     def detect(self,frame):
         dscascades = self.three_ds_cascade.detectMultiScale(frame, 1.01,
