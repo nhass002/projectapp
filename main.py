@@ -19,17 +19,44 @@ class VideoThread(QThread):
     def run(self):
         # capture from web cam
         capture = cv2.VideoCapture(0)
-
-        self.fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
-        self.apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
-        self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
         while True:
+            self.fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
+            self.apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
+            #self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
+            # -- Detect faces
+            self.face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+
             check, cv_img = capture.read() #update frames
             cv_img = cv.flip(cv_img, 1)
             if check:
+                gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
+
+                fruitcascades = self.fruits_cascade.detectMultiScale(gray, 1.01, 7)
+                applecascades = self.apples_cascade.detectMultiScale(gray, 1.01, 7)
+                # bananacascades = bananas_cascade.detectMultiScale(gray, 1.01, 7)
+                #face cascade below
+                faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
+                #detecting code below
+                for (x, y, w, h) in fruitcascades:
+                    cv_img = cv.cv2.rectangle(cv_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                    cv.cv2.putText(cv_img, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30),
+                                   2)
+                for (x, y, w, h) in applecascades:
+                    cv_img = cv.cv2.rectangle(cv_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                    cv.cv2.putText(cv_img, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9,
+                                   (30, 255, 30), 2)
+                # for (x, y, w, h) in bananacascades:
+                # cv_img = cv.cv2.rectangle(cv_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                # cv.cv2.putText(cv_img, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+                #Draw rectangle around the faces
+                for (x, y, w, h) in faces:
+                    cv_img = cv2.rectangle(cv_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                    cv.cv2.putText(cv_img, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
                 self.change_pixmap_signal.emit(cv_img)
                 #self.detect(cv_img) #this breaks the camera when running
-
+    """
     def detect(self,frame):
         dscascades = self.three_ds_cascade.detectMultiScale(frame, 1.01,
                                                        7)  # holds the classifier multiscale which does the detecting
@@ -58,6 +85,7 @@ class VideoThread(QThread):
         for (x, y, w, h) in faces:
             frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
             cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+    """
 
 
 #source https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
