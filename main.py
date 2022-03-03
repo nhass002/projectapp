@@ -113,19 +113,25 @@ class mainWindow(QWidget):
         #button1.setText("Button1")
 
         #Below here are the cascades
-        self.three_ds_cascade = cv.cv2.CascadeClassifier(
-            'updated_haar_images/classifier/cascade.xml')  # finds the classifier in the path
+        #self.three_ds_cascade = cv.cv2.CascadeClassifier(
+            #'updated_haar_images/classifier/cascade.xml')  # finds the classifier in the path
+
+        #self.fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
+        #self.apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
+        #self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
 
         self.fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
         self.apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
-        self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
+        # self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
+        # -- Detect faces
+        self.face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
 
         widget = QWidget()
         self.pushButton = QtWidgets.QPushButton(widget)
         #self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23)) #uncomment this later
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Switch Mode")
-        self.mode = 1
+        self.mode = 0
 
         #screenshot
         self.pushButton_2 = QtWidgets.QPushButton(widget)
@@ -135,6 +141,9 @@ class mainWindow(QWidget):
         self.pushButton_3 = QtWidgets.QPushButton(widget)
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("Upload Image")
+
+        self.pushButton_2.setEnabled(False)
+        self.pushButton_3.setEnabled(False)
 
         self.pushButton.clicked.connect(self.switchMode)
 
@@ -148,18 +157,21 @@ class mainWindow(QWidget):
         # set the vbox layout as the widgets layout
         self.setLayout(vbox)
 
-        if self.mode == 0:
+        if self.mode == 0: #IN MODE 0 IT WILL DISPLAY AN IMAGE
             # create a grey pixmap
             grey = QPixmap(self.disply_width, self.display_height)
             grey.fill(QColor('darkGray'))
             # set the image image to the grey pixmap
             self.image_label.setPixmap(grey)
             img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
+            self.detect(img)
             # convert the image to Qt format
             qt_img = self.convert_cv_qt(img)
             # display it
             self.image_label.setPixmap(qt_img)
-        if self.mode == 1:
+            #self.detect(qt_img)
+
+        if self.mode == 1: #IN MODE 1 IT WILL DISPLAY THE CAMERA
             # create the video capture thread
             self.thread = VideoThread()
             # connect its signal to the update_image slot
@@ -194,6 +206,39 @@ class mainWindow(QWidget):
         return QPixmap.fromImage(p)
 
     #detection code used to be here
+    #self.fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
+    #self.apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
+    # self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
+    # -- Detect faces
+    #self.face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+    def detect(self, frame):
+        #dscascades = self.three_ds_cascade.detectMultiScale(frame, 1.01,
+                                                            #7)  # holds the classifier multiscale which does the detecting
+        # and returns the boundaries for the rectangle
+        # fruitcascades = fruits_cascade.detectMultiScale(frame, 1.01, 7)
+        fruitcascades = self.fruits_cascade.detectMultiScale(frame, 1.01, 7)
+        applecascades = self.apples_cascade.detectMultiScale(frame, 1.01, 7)
+        # bananacascades = bananas_cascade.detectMultiScale(frame, 1.01, 7)
+
+        for (x, y, w, h) in fruitcascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        for (x, y, w, h) in applecascades:
+            frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'apple', ((x + w) - 30, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+        # for (x, y, w, h) in bananacascades:
+        # frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        # cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+        # -- Detect faces
+        face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Detect faces
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        # Draw rectangle around the faces
+        for (x, y, w, h) in faces:
+            frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
 
 """
 class Ui_MainWindow(object):
