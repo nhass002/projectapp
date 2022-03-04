@@ -254,8 +254,9 @@ class mainWindow(QWidget):
             frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
             cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
 
-"""
-capture = cv.VideoCapture(0) #video capturing saved into a variable
+
+#capture = cv.VideoCapture(0) #video capturing saved into a variable
+
 
 three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml') #finds the classifier in the path
 
@@ -264,7 +265,7 @@ apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml'
 bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
 
 #mode = 1;
-"""
+
 
 if __name__ == "__main__":
     import sys
