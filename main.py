@@ -12,9 +12,8 @@ import sys
 import numpy as np
 
 #https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
-#REWRITE THIS WITH CURRENT CODE, this is purely for testing
 class VideoThread(QThread):
-    change_pixmap_signal = pyqtSignal(np.ndarray)
+    change_pixmap_signal = pyqtSignal(np.ndarray) #uses numpy to turn the matrix into an array
 
     def run(self):
         # capture from web cam
@@ -29,6 +28,7 @@ class VideoThread(QThread):
             check, cv_img = capture.read() #update frames
             cv_img = cv.flip(cv_img, 1)
             if check:
+
                 gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
 
                 fruitcascades = self.fruits_cascade.detectMultiScale(gray, 1.01, 7)
@@ -37,6 +37,7 @@ class VideoThread(QThread):
                 #face cascade below
                 faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
                 #detecting code below
+                """
                 for (x, y, w, h) in fruitcascades:
                     cv_img = cv.cv2.rectangle(cv_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
                     cv.cv2.putText(cv_img, 'fruits', ((x + w) - 10, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30),
@@ -48,6 +49,7 @@ class VideoThread(QThread):
                 # for (x, y, w, h) in bananacascades:
                 # cv_img = cv.cv2.rectangle(cv_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
                 # cv.cv2.putText(cv_img, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+                """
 
                 #Draw rectangle around the faces
                 for (x, y, w, h) in faces:
@@ -100,17 +102,9 @@ class mainWindow(QWidget):
         self.image_label = QLabel(self)
         #self.centralwidget = QtWidgets.QWidget(MainWindow)
         #self.centralwidget.setObjectName("centralwidget")
-        #button frame
-        #self.buttonframe = QtWidgets.QFrame(self.centralwidget)
-        #self.buttonframe.setGeometry(QtCore.QRect(10, 260, 291, 71))
-        #self.buttonframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        #self.buttonframe.setFrameShadow(QtWidgets.QFrame.Raised)
-        #self.buttonframe.setObjectName("buttonframe")
         # create a text label
         self.textLabel = QLabel('Menu')
         #button
-        #button1 = QtPushButton(widget)
-        #button1.setText("Button1")
 
         #Below here are the cascades
         #self.three_ds_cascade = cv.cv2.CascadeClassifier(
@@ -131,7 +125,7 @@ class mainWindow(QWidget):
         #self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23)) #uncomment this later
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Switch Mode")
-        self.mode = 0
+        self.mode = 1
 
         #screenshot
         self.pushButton_2 = QtWidgets.QPushButton(widget)
@@ -142,18 +136,25 @@ class mainWindow(QWidget):
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("Upload Image")
 
+        self.comboBox = QtWidgets.QComboBox(widget)
+        #self.comboBox.setGeometry(QtCore.QRect(10, 40, 171, 22))
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+
+        #buttons that arent being used will be greyed out
         self.pushButton_2.setEnabled(False)
         self.pushButton_3.setEnabled(False)
 
         self.pushButton.clicked.connect(self.switchMode)
 
-        # create a vertical box layout and add the two labels
+        # create a vertical box layout and add the two labels, then add buttons and combobox (drop down menu)
         vbox = QVBoxLayout()
         vbox.addWidget(self.image_label)
         vbox.addWidget(self.textLabel)
         vbox.addWidget(self.pushButton) #switch modes
         vbox.addWidget(self.pushButton_2) #screenshot
         vbox.addWidget(self.pushButton_3) #upload image
+        vbox.addWidget(self.comboBox)
         # set the vbox layout as the widgets layout
         self.setLayout(vbox)
 
@@ -164,14 +165,14 @@ class mainWindow(QWidget):
             # set the image image to the grey pixmap
             self.image_label.setPixmap(grey)
             img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
+            # perform detection on the image
             self.detect(img)
             # convert the image to Qt format
             qt_img = self.convert_cv_qt(img)
             # display it
             self.image_label.setPixmap(qt_img)
-            #self.detect(qt_img)
 
-        if self.mode == 1: #IN MODE 1 IT WILL DISPLAY THE CAMERA
+        if self.mode == 1: #IN MODE 1 IT WILL DISPLAY THE LIVE CAMERA
             # create the video capture thread
             self.thread = VideoThread()
             # connect its signal to the update_image slot
@@ -180,16 +181,25 @@ class mainWindow(QWidget):
             self.thread.start()
 
     def switchMode(self):
-        if self.mode == 0:
+        if self.mode == 0: # switches from image to video
             self.mode = 1
             print(self.mode)
             #return self.mode
         elif self.mode == 1:
-            self.mode = 0;
+            self.mode = 0; # switches from video to img display
             print(self.mode)
+            capture.release()
+            #self.thread.quit()
+            img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
+            # perform detection on the image
+            self.detect(img)
+            # convert the image to Qt format
+            qt_img = self.convert_cv_qt(img)
+            # display it
+            self.image_label.setPixmap(qt_img)
             #return self.mode
 
-    @pyqtSlot(np.ndarray)
+    @pyqtSlot(np.ndarray) #converts python method into a qt slot for a signal which is connected earlier
     def update_image(self, cv_img):
         """Updates the image_label with a new opencv image"""
         qt_img = self.convert_cv_qt(cv_img)
@@ -229,6 +239,8 @@ class mainWindow(QWidget):
         # for (x, y, w, h) in bananacascades:
         # frame = cv.cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         # cv.cv2.putText(frame, 'banana', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
+
+        #Source: https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
 
         # -- Detect faces
         face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
