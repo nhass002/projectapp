@@ -188,6 +188,7 @@ class mainWindow(QWidget):
         elif self.mode == 1:
             self.mode = 0; # switches from video to img display
             print(self.mode)
+            """
             capture.release()
             #self.thread.quit()
             img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
@@ -197,6 +198,7 @@ class mainWindow(QWidget):
             qt_img = self.convert_cv_qt(img)
             # display it
             self.image_label.setPixmap(qt_img)
+            """
             #return self.mode
 
     @pyqtSlot(np.ndarray) #converts python method into a qt slot for a signal which is connected earlier
@@ -253,109 +255,6 @@ class mainWindow(QWidget):
             cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
 
 """
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        super().__init__() #(QtGui.QWidget)
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(644, 381)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.cameraframe = QtWidgets.QFrame(self.centralwidget)
-        self.cameraframe.setGeometry(QtCore.QRect(10, 10, 611, 241))
-        self.cameraframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.cameraframe.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.cameraframe.setObjectName("cameraframe")
-        self.buttonframe = QtWidgets.QFrame(self.centralwidget)
-        self.buttonframe.setGeometry(QtCore.QRect(10, 260, 291, 71))
-        self.buttonframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.buttonframe.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.buttonframe.setObjectName("buttonframe")
-        self.comboBox = QtWidgets.QComboBox(self.buttonframe)
-        self.comboBox.setGeometry(QtCore.QRect(10, 40, 171, 22))
-        self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
-        self.pushButton_3 = QtWidgets.QPushButton(self.buttonframe)
-        self.pushButton_3.setGeometry(QtCore.QRect(200, 10, 75, 23))
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton = QtWidgets.QPushButton(self.buttonframe)
-        self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23))
-        self.pushButton.setObjectName("pushButton")
-        self.pushButton_4 = QtWidgets.QPushButton(self.buttonframe)
-        self.pushButton_4.setGeometry(QtCore.QRect(200, 40, 75, 23))
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.pushButton_2 = QtWidgets.QPushButton(self.buttonframe)
-        self.pushButton_2.setGeometry(QtCore.QRect(100, 10, 81, 23))
-        self.pushButton_2.setObjectName("pushButton_2")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 644, 22))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow) #calls below function to add text
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-
-        #possibly wrap opencv window here https://stackoverflow.com/questions/32226074/display-opencv-window-on-top-of-pyqts-main-window/32270308
-        #this may help too as reference https://gist.github.com/docPhil99/ca4da12c9d6f29b9cea137b617c7b8b1
-
-        self.capture = cv2.VideoCapture(0)
-        self.image_label = QLabel(self)
-        # create a text label
-        self.textLabel = QLabel('Demo')
-        # create a vertical box layout and add the two labels
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.image_label)
-        vbox.addWidget(self.textLabel)
-        # set the vbox layout as the widgets layout
-        self.setLayout(vbox)
-
-
-        #lay = QtGui.QVBoxLayout()
-        #lay.setMargin(0)
-        #lay.addWidget(self.video_frame)
-        #self.setLayout(lay)
-        #need to add the video capture to this GUI here see link above for help
-        #self.cameraframe.addWidget(self.video_frame)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "Default Input"))
-        self.pushButton_3.setText(_translate("MainWindow", "Screenshot"))
-        self.pushButton.setText(_translate("MainWindow", "Switch Mode"))
-        self.pushButton_4.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_2.setText(_translate("MainWindow", "Upload Image"))
-
-    def buttonCheck(self,mode):
-        self.pushButton.setCheckable(True)
-        self.pushButton.toggle()
-        #self.pushButton.clicked.connect()
-        if self.pushButton.isChecked():
-            #print("1")
-        #else:
-            if mode == 1:
-                #cv.destroyWindow(windowcapture)
-                mode = 0
-                #print(mode)
-            #if mode == 1:
-                #mode = 0
-                #print(mode)
-
-        if self.pushButton_2.isChecked():
-            print("2")
-        if self.pushButton_3.isChecked():
-            print("3")
-        if self.pushButton_4.isChecked():
-            print("4")
-"""
-
-    #FOR COMBOBOX Which is the drop down box of items, create an if statement that uses cv.videocapture(0) and inside the parameters
-    #0 is the default, replace 0 to look for other devices possibly? detect and the adds to the default input list when running the code
-
 capture = cv.VideoCapture(0) #video capturing saved into a variable
 
 three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml') #finds the classifier in the path
@@ -365,6 +264,7 @@ apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml'
 bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
 
 #mode = 1;
+"""
 
 if __name__ == "__main__":
     import sys
