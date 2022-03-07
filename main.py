@@ -4,7 +4,7 @@ import cv2.cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 #GUI CLASS BELOW
-from PyQt5.QtWidgets import QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt,QObject, QThread
@@ -27,6 +27,8 @@ class VideoThread(QThread):
 
             check, cv_img = capture.read() #update frames
             cv_img = cv.flip(cv_img, 1)
+            #if check is not None:
+                #continue
             if check:
 
                 gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
@@ -90,7 +92,7 @@ class VideoThread(QThread):
     """
 
 
-#source https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
+#source of code that is adapted https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
 #source 2 https://github.com/docPhil99/opencvQtdemo/blob/master/staticLabel2.py
 class mainWindow(QWidget):
     def __init__(self):
@@ -100,6 +102,7 @@ class mainWindow(QWidget):
         self.display_height = 480
         # create the label that holds the image
         self.image_label = QLabel(self)
+        self.video_label = QLabel(self)
         #self.centralwidget = QtWidgets.QWidget(MainWindow)
         #self.centralwidget.setObjectName("centralwidget")
         # create a text label
@@ -121,11 +124,20 @@ class mainWindow(QWidget):
         self.face_cascade = cv2.CascadeClassifier('venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
 
         widget = QWidget()
+        #add 2 frames here
+        #self.imageframe = QFrame()
+        #self.videoframe = QFrame()
+        #self.imageframe.resize(300,640)
+        #self.videoframe.resize(300,640)
+
+        #self.imageframe.add(self.image_label)
+        #self.videoframe.add(self.video_label)
+
         self.pushButton = QtWidgets.QPushButton(widget)
         #self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23)) #uncomment this later
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Switch Mode")
-        self.mode = 1
+        self.mode = 0
 
         #screenshot
         self.pushButton_2 = QtWidgets.QPushButton(widget)
@@ -149,16 +161,23 @@ class mainWindow(QWidget):
 
         # create a vertical box layout and add the two labels, then add buttons and combobox (drop down menu)
         vbox = QVBoxLayout()
-        vbox.addWidget(self.image_label)
+        #vbox.addWidget(self.imageframe)
+        #vbox.addWidget(self.videoframe)
+        vbox.addWidget(self.image_label) #label for displaying the image within
+        vbox.addWidget(self.video_label)
         vbox.addWidget(self.textLabel)
         vbox.addWidget(self.pushButton) #switch modes
         vbox.addWidget(self.pushButton_2) #screenshot
         vbox.addWidget(self.pushButton_3) #upload image
-        vbox.addWidget(self.comboBox)
+        vbox.addWidget(self.comboBox) #this will be used for possibly changing the camera
         # set the vbox layout as the widgets layout
         self.setLayout(vbox)
 
+        self.image_label.hide()
+        self.video_label.hide()
+
         if self.mode == 0: #IN MODE 0 IT WILL DISPLAY AN IMAGE
+            self.image_label.show()
             # create a grey pixmap
             grey = QPixmap(self.disply_width, self.display_height)
             grey.fill(QColor('darkGray'))
@@ -173,6 +192,7 @@ class mainWindow(QWidget):
             self.image_label.setPixmap(qt_img)
 
         if self.mode == 1: #IN MODE 1 IT WILL DISPLAY THE LIVE CAMERA
+            self.video_label.show()
             # create the video capture thread
             self.thread = VideoThread()
             # connect its signal to the update_image slot
@@ -184,10 +204,37 @@ class mainWindow(QWidget):
         if self.mode == 0: # switches from image to video
             self.mode = 1
             print(self.mode)
-            #return self.mode
+            self.image_label.hide()
+            self.video_label.show()
+            # NEW ##
+            #"""
+            # create a grey pixmap
+            grey = QPixmap(self.disply_width, self.display_height)
+            grey.fill(QColor('darkGray'))
+            # set the image image to the grey pixmap
+            self.image_label.setPixmap(grey)
+            img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
+            # perform detection on the image
+            self.detect(img)
+            # convert the image to Qt format
+            qt_img = self.convert_cv_qt(img)
+            # display it
+            self.image_label.setPixmap(qt_img)
+            #"""
         elif self.mode == 1:
             self.mode = 0; # switches from video to img display
             print(self.mode)
+            self.video_label.hide()
+            self.image_label.show()
+            ## NEWLY ADDED ##
+            #"""
+            # create the video capture thread
+            self.thread = VideoThread()
+            # connect its signal to the update_image slot
+            self.thread.change_pixmap_signal.connect(self.update_image)
+            # start the thread
+            self.thread.start()
+            #"""
             """
             capture.release()
             #self.thread.quit()
@@ -199,17 +246,19 @@ class mainWindow(QWidget):
             # display it
             self.image_label.setPixmap(qt_img)
             """
-            #return self.mode
 
     @pyqtSlot(np.ndarray) #converts python method into a qt slot for a signal which is connected earlier
     def update_image(self, cv_img):
-        """Updates the image_label with a new opencv image"""
+        #Updates the image_label with a new opencv image
         qt_img = self.convert_cv_qt(cv_img)
-        self.image_label.setPixmap(qt_img)
+        if self.mode == 0: #image
+            self.image_label.setPixmap(qt_img)
+        elif self.mode == 1: #video
+            self.video_label.setPixmap(qt_img)
         #detect(qt_img)
 
     def convert_cv_qt(self, cv_img):
-        """Convert from an opencv image to QPixmap"""
+        #Convert from an opencv image to QPixmap
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
@@ -390,28 +439,27 @@ while True:
 cv.destroyAllWindows()
 
 #end camera
-capture.release()
+#capture.release()
 sys.exit(mainWindow.exec_())
 
-"""
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
-"""
+
+#if __name__ == "__main__":
+    #import sys
+    #app = QtWidgets.QApplication(sys.argv)
+    #MainWindow = QtWidgets.QMainWindow()
+    #ui = Ui_MainWindow()
+    #ui.setupUi(MainWindow)
+    #MainWindow.show()
+    #sys.exit(app.exec_())
+
 
 
 #capture.set(cv.cv.CV_CAP_PROP_FRAME_WIDTH,800)
 #capture.set(cv.cv.CV_CAP_PROP_FRAME_HEIGHT,450)
 #https://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#videocapture-set
 
-"""
-extra info below
-"""
+#extra info below
+
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 # https://www.e-consystems.com/blog/camera/how-to-access-cameras-using-opencv-with-python/
 # https://docs.opencv.org/master/d6/d00/tutorial_py_root.html
