@@ -12,13 +12,20 @@ import sys
 import numpy as np
 
 #https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
-class VideoThread(QThread):
+class Thread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray) #uses numpy to turn the matrix into an array
+    """
+    def __init__(self):
+        self._running = True
+
+    def terminate(self):
+        self._running = False
+    """
 
     def run(self):
         # capture from web cam
         capture = cv2.VideoCapture(0)
-        while True:
+        while True: #while self._running
             self.fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
             self.apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
             #self.bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
@@ -27,8 +34,6 @@ class VideoThread(QThread):
 
             check, cv_img = capture.read() #update frames
             cv_img = cv.flip(cv_img, 1)
-            #if check is not None:
-                #continue
             if check:
 
                 gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
@@ -92,13 +97,13 @@ class VideoThread(QThread):
     """
 
 
-#source of code that is adapted https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
+#source of code that is adapted from https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
 #source 2 https://github.com/docPhil99/opencvQtdemo/blob/master/staticLabel2.py
 class mainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Object Recognition GUI")
-        self.disply_width = 640
+        self.disply_width = 720 #This is to keep it at a 720x480 screen size until further changes
         self.display_height = 480
         # create the label that holds the image
         self.image_label = QLabel(self)
@@ -107,7 +112,6 @@ class mainWindow(QWidget):
         #self.centralwidget.setObjectName("centralwidget")
         # create a text label
         self.textLabel = QLabel('Menu')
-        #button
 
         #Below here are the cascades
         #self.three_ds_cascade = cv.cv2.CascadeClassifier(
@@ -151,7 +155,7 @@ class mainWindow(QWidget):
         self.comboBox = QtWidgets.QComboBox(widget)
         #self.comboBox.setGeometry(QtCore.QRect(10, 40, 171, 22))
         self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
+        self.comboBox.addItem("Choose Input Device")
 
         #buttons that arent being used will be greyed out
         self.pushButton_2.setEnabled(False)
@@ -194,18 +198,20 @@ class mainWindow(QWidget):
         if self.mode == 1: #IN MODE 1 IT WILL DISPLAY THE LIVE CAMERA
             self.video_label.show()
             # create the video capture thread
-            self.thread = VideoThread()
+            self.thread = Thread()
             # connect its signal to the update_image slot
             self.thread.change_pixmap_signal.connect(self.update_image)
             # start the thread
             self.thread.start()
 
     def switchMode(self):
-        if self.mode == 0: # switches from image to video
-            self.mode = 1
+        if self.mode == 1: # switches from video to image
+            self.mode = 0
             print(self.mode)
-            self.image_label.hide()
-            self.video_label.show()
+            self.image_label.show()
+            self.video_label.hide()
+            #self.thread.capture.release()
+            #self.thread.time.sleep(0.1)
             # NEW ##
             #"""
             # create a grey pixmap
@@ -220,16 +226,18 @@ class mainWindow(QWidget):
             qt_img = self.convert_cv_qt(img)
             # display it
             self.image_label.setPixmap(qt_img)
+            #self.thread.stop()
+            #self.thread.terminate()
             #"""
-        elif self.mode == 1:
-            self.mode = 0; # switches from video to img display
+        elif self.mode == 0:
+            self.mode = 1; # switches from image to video
             print(self.mode)
-            self.video_label.hide()
-            self.image_label.show()
+            self.video_label.show()
+            self.image_label.hide()
             ## NEWLY ADDED ##
             #"""
             # create the video capture thread
-            self.thread = VideoThread()
+            self.thread = Thread() #target = self.thread.run
             # connect its signal to the update_image slot
             self.thread.change_pixmap_signal.connect(self.update_image)
             # start the thread
