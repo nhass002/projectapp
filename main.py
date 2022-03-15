@@ -255,6 +255,10 @@ class mainWindow(QWidget):
             self.image_label.setPixmap(qt_img)
             """
 
+    #function for uploading image button
+
+    #function for screenshotting images
+
     @pyqtSlot(np.ndarray) #converts python method into a qt slot for a signal which is connected earlier
     def update_image(self, cv_img):
         #Updates the image_label with a new opencv image
