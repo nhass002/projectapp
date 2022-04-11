@@ -4,7 +4,7 @@ import cv2.cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 #GUI CLASS BELOW
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QFileDialog
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt,QObject, QThread
@@ -159,9 +159,11 @@ class mainWindow(QWidget):
 
         #buttons that arent being used will be greyed out
         self.pushButton_2.setEnabled(False)
-        self.pushButton_3.setEnabled(False)
+        #self.pushButton_3.setEnabled(False)
 
         self.pushButton.clicked.connect(self.switchMode)
+
+        self.pushButton_3.clicked.connect(self.upload_image)
 
         # create a vertical box layout and add the two labels, then add buttons and combobox (drop down menu)
         vbox = QVBoxLayout()
@@ -187,11 +189,11 @@ class mainWindow(QWidget):
             grey.fill(QColor('darkGray'))
             # set the image image to the grey pixmap
             self.image_label.setPixmap(grey)
-            img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
+            self.img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
             # perform detection on the image
-            self.detect(img)
+            self.detect(self.img)
             # convert the image to Qt format
-            qt_img = self.convert_cv_qt(img)
+            qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
 
@@ -219,11 +221,11 @@ class mainWindow(QWidget):
             grey.fill(QColor('darkGray'))
             # set the image image to the grey pixmap
             self.image_label.setPixmap(grey)
-            img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
+            self.img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
             # perform detection on the image
-            self.detect(img)
+            self.detect(self.img)
             # convert the image to Qt format
-            qt_img = self.convert_cv_qt(img)
+            qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
             #self.thread.stop()
@@ -256,6 +258,16 @@ class mainWindow(QWidget):
             """
 
     #function for uploading image button
+    @pyqtSlot()
+    def upload_image(self):
+        #self.filename = QtGui.QFileDialog.getOpenFileName(self,'Open File', '.')
+        #self.filename = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
+        self.filename = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.jpg *.gif)")
+        self.img = cv.imread(self.filename) #self.file_image
+        self.update_image(self.file_image)
+        #read image file here
+        #call update_image and pass the image
+        print("e")
 
     #function for screenshotting images
 
