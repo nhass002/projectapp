@@ -3,6 +3,7 @@ pyqt5 needs to be installed
 numpy needs to be installed
 
 download the weights file and keep it with main.py https://drive.google.com/file/d/1YqQx4CGi1ijba7KBwqz0Efnb2wePNOEi/view?usp=sharing
+or it can be downloaded here as yolov3-320 weights file https://pjreddie.com/darknet/yolo/
 
 1. Run on code
 2. Click the Switch Mode button and hold up objects to the camera or just use recognition on your face/body
