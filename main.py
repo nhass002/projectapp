@@ -1,6 +1,5 @@
 import cv2 as cv #this library needs to be imported for opencv
 import cv2.cv2
-#import argparse
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 #GUI CLASS BELOW
@@ -8,11 +7,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QFileDialog
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QObject, QThread
-import sys
 import numpy as np
-
-#import time
-#import threading
 
 classesFile = 'coco.names'
 classNames = []
@@ -21,37 +16,18 @@ with open(classesFile, 'rt') as f:
     classNames = f.read().rstrip('\n').split('\n')
 #print(classNames)
 #print(len(classNames))
-#print
-"""
-modelConfiguration = 'yolov3.cfg'
-modelWeights = 'yolov3.weights'
-
-net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
-net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
-net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
-
-widthHeight = 320
-
-confThreshold = 0.5
-nms = 0.3
-"""
-
-#stop_threads = False
 
 class Thread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray) #uses numpy to turn the matrix into an array
-    """
-    def __init__(self):
-        self._running = True
 
-    def terminate(self):
-        self._running = False 
-    """
-#test
     def run(self):
         # capture from web cam
         capture = cv2.VideoCapture(0)
         self.running = True
+        # SOURCE OF YOLO CODE IS THIS VIDEO TUTORIAL AND I HAD SPLIT UP THE CODE IN ORDER TO MAKE IT WORK WITH A GUI
+        # VIDEO PLAYLIST FOR THIS IS FOUND BELOW
+        # https://www.youtube.com/playlist?list=PLMoSUbG1Q_r8nz4C5Yvd17KaXy8p0ufPH
+        # From below this line to the while true and then from line 51 "self.blob...." to line 59 "self.detect_objects"
         self.modelConfiguration = 'yolov3.cfg'
         self.modelWeights = 'yolov3.weights'
 
@@ -62,17 +38,15 @@ class Thread(QThread):
         self.widthHeight = 480
 
         self.confThreshold = 0.5
-        self.nms = 0.3
-        #self.stop_threads = False
+        self.nms = 0.3 #removes the boxes with an overlap
 
-        while True: #while self._running
+        while True:
 
-            #if stop_threads:
-                #break
             if self.running == False:
                 break
 
             check, cv_img = capture.read() #update frames
+            self.new_image = cv_img.copy()
             #cv_img = cv.flip(cv_img, 1)
             #if check:
             self.blob = cv2.dnn.blobFromImage(cv_img, 1 / 255.0, (self.widthHeight, self.widthHeight), [0, 0, 0], 1, crop=False)
@@ -83,16 +57,14 @@ class Thread(QThread):
             self.outputNames = [self.layerNames[i - 1] for i in self.net.getUnconnectedOutLayers()]
             self.outputs = self.net.forward(self.outputNames)
 
-            self.findObjects(self.outputs, cv_img)
+            self.detectObjects(self.outputs, cv_img)
             self.change_pixmap_signal.emit(cv_img)
-
-            #cv2.imshow('image', cv_img)
-            #cv2.waitKey(1)
 
         if self.running == False:
             capture.release()
 
-    def findObjects(self,outputs, img):
+    # This function below is also from a YOLO tutorial https://www.youtube.com/playlist?list=PLMoSUbG1Q_r8nz4C5Yvd17KaXy8p0ufPH
+    def detectObjects(self,outputs, img):
         height, width, center = img.shape
         bound = []
         classIDs = []
@@ -123,16 +95,17 @@ class Thread(QThread):
 
 #source of code that is adapted from https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
 #source 2 https://github.com/docPhil99/opencvQtdemo/blob/master/staticLabel2.py
+# From this source, I had used their conversion functions however the GUI button additions and button functions I made
+# This code is used for displaying the frame onto the GUI and is the update image and convert cv to qt functions
 class mainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Object Recognition GUI")
         self.display_width = 720 #This is to keep it at a 720x480 screen size until further changes
         self.display_height = 480
-        # create the label that holds the image
-        self.image_label = QLabel(self)
-        self.video_label = QLabel(self)
-        # create a text label
+        # image label and video label separate so they can be hidden
+        self.image_label = QLabel(self) #creating a label to hold images
+        self.video_label = QLabel(self) # creating a label to hold videos
         self.textLabel = QLabel('Menu')
 
         self.modelConfiguration = 'yolov3.cfg'
@@ -142,14 +115,21 @@ class mainWindow(QWidget):
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
-        self.widthHeight = 320
+        self.widthHeight = 480
 
         self.confThreshold = 0.5
         self.nms = 0.3
 
-        widget = QWidget()
+        widget = QWidget() #this is so the pushbuttons are of the qwidget class
+        """
+        self.buttonframe = QtWidgets.QFrame(self)
+        self.buttonframe.setGeometry(QtCore.QRect(10, 260, 291, 71))
+        self.buttonframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.buttonframe.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.buttonframe.setObjectName("buttonframe")
+        """
 
-        self.pushButton = QtWidgets.QPushButton(widget)
+        self.pushButton = QtWidgets.QPushButton(widget) #self.buttonframe
         #self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23)) #uncomment this later
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Switch Mode")
@@ -157,7 +137,6 @@ class mainWindow(QWidget):
         #-----------------
         self.mode = 0 # change mode manually at start here
         #---------------------
-
 
         #screenshot
         self.pushButton_2 = QtWidgets.QPushButton(widget)
@@ -168,18 +147,33 @@ class mainWindow(QWidget):
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("Upload Image")
 
+        self.pushButton_3.setGeometry(QtCore.QRect(200, 10, 75, 23))
+        self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23))
+        self.pushButton_2.setGeometry(QtCore.QRect(100, 10, 81, 23))
+
         self.comboBox = QtWidgets.QComboBox(widget)
         #self.comboBox.setGeometry(QtCore.QRect(10, 40, 171, 22))
         self.comboBox.setObjectName("comboBox")
         self.comboBox.addItem("Choose Input Device")
 
         #buttons that arent being used will be greyed out
-        self.pushButton_2.setEnabled(False)
+        #self.pushButton_2.setEnabled(False)
         #self.pushButton_3.setEnabled(False)
+
+        #self.pushButton.setGeometry(200, 150, 100, 40)
+        #self.pushButton_2.setGeometry(200, 150, 100, 40)
+        #self.pushButton_3.setGeometry(200, 150, 100, 40)
+
+        #self.pushButton.resize(50,20)
+        #self.pushButton_2.resize(50,20)
+        #self.pushButton_3.resize(50,20)
+        #self.pushButton_3.setGeometry(QtCore.QRect(200, 10, 75, 23))
 
         self.pushButton.clicked.connect(self.switchMode)
 
         self.pushButton_3.clicked.connect(self.upload_image)
+
+        self.pushButton_2.clicked.connect(self.screenshot)
 
         # create a vertical box layout and add the two labels, then add buttons and combobox (drop down menu)
         vbox = QVBoxLayout()
@@ -212,10 +206,9 @@ class mainWindow(QWidget):
             self.outputNames = [self.layerNames[i - 1] for i in self.net.getUnconnectedOutLayers()]
             self.outputs = self.net.forward(self.outputNames)
 
-
             # perform detection on the image
             #self.detect(self.img)
-            self.findObjects(self.outputs, self.img)
+            self.detectObjects(self.outputs, self.img)
             # convert the image to Qt format
             qt_img = self.convert_cv_qt(self.img)
             # display it
@@ -238,14 +231,6 @@ class mainWindow(QWidget):
             print(self.mode)
             self.image_label.show()
             self.video_label.hide()
-            #time.sleep(1)
-            #stop_threads = True
-            #self.thread.stop_threads = True
-            #self.thread.join()
-            #self.thread.capture.release()
-            #self.thread.time.sleep(0.1)
-
-            #self.thread.capture.release()
             self.thread.running = False
 
             #self.thread.join()
@@ -262,39 +247,23 @@ class mainWindow(QWidget):
 
             # perform detection on the image
             #self.detect(self.img)
-            self.findObjects(self.outputs, self.img)
+            self.detectObjects(self.outputs, self.img)
             # convert the image to Qt format
             qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
-            #self.thread.stop()
-            #self.thread.terminate()
-            #"""
         elif self.mode == 0:
             self.mode = 1; # switches from image to video
             print(self.mode)
             self.video_label.show()
             self.image_label.hide()
             ## NEWLY ADDED ##
-            #"""
             # create the video capture thread
             self.thread = Thread() #target = self.thread.run
             # connect its signal to the update_image slot
             self.thread.change_pixmap_signal.connect(self.update_image)
             # start the thread
             self.thread.start()
-            #"""
-            """
-            capture.release()
-            #self.thread.quit()
-            img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
-            # perform detection on the image
-            self.detect(img)
-            # convert the image to Qt format
-            qt_img = self.convert_cv_qt(img)
-            # display it
-            self.image_label.setPixmap(qt_img)
-            """
 
     #function for uploading image button
     @pyqtSlot()
@@ -303,9 +272,6 @@ class mainWindow(QWidget):
         if self.mode == 0:
             self.filename = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')
             self.path = self.filename[0]
-
-            #print(self.filename)
-            #print(self.path)
 
             # read image file here
             self.img = cv.imread(self.path) #self.file_image
@@ -328,13 +294,23 @@ class mainWindow(QWidget):
 
             # perform detection on the image
             # self.detect(self.img)
-            self.findObjects(self.outputs, self.img)
+            self.detectObjects(self.outputs, self.img)
             # convert the image to Qt format
             qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
 
     #function for screenshotting images
+    def screenshot(self):
+        self.newFile = "saved_screenshot.jpg"
+        if mode == 1:
+            cv2.imwrite(self.newFile, self.thread.new_image)
+            print("test 1")
+        if mode == 0:
+            print("switch mode first")
+
+# SOURCE OF UPDATE IMAGE AND CONVERT CV QT https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
+# update image was adapted to work for different modes and different labels
 
     @pyqtSlot(np.ndarray) #converts python method into a qt slot for a signal which is connected earlier
     def update_image(self, cv_img):
@@ -345,18 +321,20 @@ class mainWindow(QWidget):
         elif self.mode == 1: #video
             self.video_label.setPixmap(qt_img)
         #detect(qt_img)
-        #self.findObjects(self.outputs, self.img)
+        #self.detectObjects(self.outputs, self.img)
 
     def convert_cv_qt(self, cv_img):
         #Convert from an opencv image to QPixmap
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
-        bytes_per_line = ch * w
+        #print(rgb_image.shape)
+        bytes_per_line = ch * w #3*600 = 1800 ch being the channels
+        #print(rgb_image.data)
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
         p = convert_to_Qt_format.scaled(self.display_width, self.display_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
-    def findObjects(self,outputs, img):
+    def detectObjects(self,outputs, img):
         height, width, center = img.shape
         bound = []
         classIDs = []
@@ -417,16 +395,11 @@ class mainWindow(QWidget):
             cv.cv2.putText(frame, 'face', (x, (y + h) - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (30, 255, 30), 2)
 
 
-#capture = cv.VideoCapture(0) #video capturing saved into a variable
-
-
 three_ds_cascade = cv.cv2.CascadeClassifier('updated_haar_images/classifier/cascade.xml') #finds the classifier in the path
 
 fruits_cascade = cv.cv2.CascadeClassifier('updated_haar_images/fruitcascade.xml')
 apples_cascade = cv.cv2.CascadeClassifier('updated_haar_images/applecascade.xml')
 bananas_cascade = cv.cv2.CascadeClassifier('updated_haar_images/bananacascade.xml')
-
-#mode = 1;
     """
 
 
@@ -434,10 +407,6 @@ if __name__ == "__main__":
     import sys
 
     mode = 1
-
-    #app = QtWidgets.QApplication(sys.argv)
-    #MainWindow = QtWidgets.QMainWindow()
-    #ui = Ui_MainWindow()
     app = QApplication(sys.argv)
     a = mainWindow()
     a.show()
@@ -447,11 +416,6 @@ if __name__ == "__main__":
 #print("click s to switch to load image")
 #print("click c to switch back to camera")
 while True:
-
-    #ui.setupUi(MainWindow)
-    #ui.buttonCheck(mode)  # recently added
-    #ui.display(mode)
-    #MainWindow.show()
 
     """
     def display(mode):
