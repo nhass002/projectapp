@@ -273,6 +273,8 @@ class mainWindow(QWidget):
     #function for uploading image button
     @pyqtSlot()
     def upload_image(self):
+        if self.mode == 1:
+            self.switchMode()
         #print("e")
         if self.mode == 0:
             self.filename = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')
@@ -287,6 +289,8 @@ class mainWindow(QWidget):
                 self.path = self.filename[0]
                 self.img = cv.imread(self.path)
 
+            self.loadModel(self.img)
+            """
             #start detection again
             self.blob = cv2.dnn.blobFromImage(self.img, 1 / 255.0, (self.widthHeight, self.widthHeight), [0, 0, 0], 1,
                                               crop=False)
@@ -304,6 +308,7 @@ class mainWindow(QWidget):
             qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
+            """
 
     #function for screenshotting images
     def screenshot(self):
