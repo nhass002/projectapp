@@ -84,7 +84,7 @@ class Thread(QThread):
 
         # print(len(bound))
         indices = cv2.dnn.NMSBoxes(bound, confidence, self.confThreshold, self.nms)
-        # print(indices)
+        #print(indices)
         for i in indices:
             # i = i[0]
             box = bound[i]
@@ -195,8 +195,9 @@ class mainWindow(QWidget):
             #SOURCE FOR DISPLAYING IMAGES: https://www.imagetracking.org.uk/2020/12/displaying-opencv-images-in-pyqt/
             # THIS SOURCE ABOVE DOES NOT INCLUDE THE YOLO CODE
             self.img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
-
-            #
+            self.loadModel(self.img)
+            """
+            #start detecting
             self.blob = cv2.dnn.blobFromImage(self.img, 1 / 255.0, (self.widthHeight, self.widthHeight), [0, 0, 0], 1,
                                               crop=False)
             self.net.setInput(self.blob)
@@ -213,6 +214,7 @@ class mainWindow(QWidget):
             qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
+            """
 
         if self.mode == 1: #IN MODE 1 IT WILL DISPLAY THE LIVE CAMERA
             self.video_label.show()
@@ -228,14 +230,16 @@ class mainWindow(QWidget):
     def switchMode(self):
         if self.mode == 1: # switches from video to image
             self.mode = 0
-            print(self.mode)
-            self.image_label.show()
-            self.video_label.hide()
+            #print(self.mode)
             self.thread.running = False
+            self.video_label.hide()
+            self.image_label.show()
 
             #self.thread.join()
             self.img = cv.imread("updated_haar_images/test_files_grayscale/apple_80.jpg")
             ## NEW ##
+            self.loadModel(self.img)
+            """
             self.blob = cv2.dnn.blobFromImage(self.img, 1 / 255.0, (self.widthHeight, self.widthHeight), [0, 0, 0], 1,
                                               crop=False)
             self.net.setInput(self.blob)
@@ -252,11 +256,12 @@ class mainWindow(QWidget):
             qt_img = self.convert_cv_qt(self.img)
             # display it
             self.image_label.setPixmap(qt_img)
+            """
         elif self.mode == 0:
             self.mode = 1; # switches from image to video
-            print(self.mode)
-            self.video_label.show()
+            #print(self.mode)
             self.image_label.hide()
+            self.video_label.show()
             ## NEWLY ADDED ##
             # create the video capture thread
             self.thread = Thread() #target = self.thread.run
@@ -282,7 +287,7 @@ class mainWindow(QWidget):
                 self.path = self.filename[0]
                 self.img = cv.imread(self.path)
 
-            #
+            #start detection again
             self.blob = cv2.dnn.blobFromImage(self.img, 1 / 255.0, (self.widthHeight, self.widthHeight), [0, 0, 0], 1,
                                               crop=False)
             self.net.setInput(self.blob)
@@ -334,6 +339,24 @@ class mainWindow(QWidget):
         p = convert_to_Qt_format.scaled(self.display_width, self.display_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
+    def loadModel(self,img):
+        self.blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (self.widthHeight, self.widthHeight), [0, 0, 0], 1,
+                                          crop=False)
+        self.net.setInput(self.blob)
+
+        self.layerNames = self.net.getLayerNames()
+
+        self.outputNames = [self.layerNames[i - 1] for i in self.net.getUnconnectedOutLayers()]
+        self.outputs = self.net.forward(self.outputNames)
+
+        # perform detection on the image
+        # self.detect(self.img)
+        self.detectObjects(self.outputs, img)
+        # convert the image to Qt format
+        qt_img = self.convert_cv_qt(img)
+        # display it
+        self.image_label.setPixmap(qt_img)
+
     def detectObjects(self,outputs, img):
         height, width, center = img.shape
         bound = []
@@ -345,6 +368,8 @@ class mainWindow(QWidget):
                 scores = detection[5:]  # first 5 are removed
                 classID = np.argmax(scores)  # max value
                 conf = scores[classID]
+                #print(np.argmax(scores))
+                #print(conf)
                 if conf > self.confThreshold:
                     w, h = int(detection[2] * width), int(detection[3] * height)
                     x, y = int((detection[0] * width) - w / 2), int((detection[1] * height) - h / 2)
