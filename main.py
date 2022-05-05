@@ -315,7 +315,7 @@ class mainWindow(QWidget):
         self.newFile = "saved_screenshot.jpg"
         if mode == 1:
             cv2.imwrite(self.newFile, self.thread.new_image)
-            print("test 1")
+            #print("test 1")
         if mode == 0:
             print("switch mode first")
 
