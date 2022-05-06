@@ -121,16 +121,8 @@ class mainWindow(QWidget):
         self.nms = 0.3
 
         widget = QWidget() #this is so the pushbuttons are of the qwidget class
-        """
-        self.buttonframe = QtWidgets.QFrame(self)
-        self.buttonframe.setGeometry(QtCore.QRect(10, 260, 291, 71))
-        self.buttonframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.buttonframe.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.buttonframe.setObjectName("buttonframe")
-        """
 
         self.pushButton = QtWidgets.QPushButton(widget) #self.buttonframe
-        #self.pushButton.setGeometry(QtCore.QRect(10, 10, 75, 23)) #uncomment this later
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Switch Mode")
 
@@ -152,22 +144,12 @@ class mainWindow(QWidget):
         self.pushButton_2.setGeometry(QtCore.QRect(100, 10, 81, 23))
 
         self.comboBox = QtWidgets.QComboBox(widget)
-        #self.comboBox.setGeometry(QtCore.QRect(10, 40, 171, 22))
         self.comboBox.setObjectName("comboBox")
         self.comboBox.addItem("Choose Input Device")
 
         #buttons that arent being used will be greyed out
         #self.pushButton_2.setEnabled(False)
         #self.pushButton_3.setEnabled(False)
-
-        #self.pushButton.setGeometry(200, 150, 100, 40)
-        #self.pushButton_2.setGeometry(200, 150, 100, 40)
-        #self.pushButton_3.setGeometry(200, 150, 100, 40)
-
-        #self.pushButton.resize(50,20)
-        #self.pushButton_2.resize(50,20)
-        #self.pushButton_3.resize(50,20)
-        #self.pushButton_3.setGeometry(QtCore.QRect(200, 10, 75, 23))
 
         self.pushButton.clicked.connect(self.switchMode)
 
